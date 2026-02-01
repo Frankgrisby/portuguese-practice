@@ -1,243 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>European Portuguese Practice</title>
+  <meta charset="UTF-8" />
+  <title>Portuguese Practice App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(120deg, #e0f7fa, #fff);
-    padding: 20px;
-    max-width: 600px;
-    margin: auto;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #1e1e2f, #0b0b14);
+      color: #fff;
+      text-align: center;
+    }
 
-h1 {
-    text-align: center;
-    color: #00695c;
-}
+    h1 {
+      margin-top: 30px;
+      font-size: 2rem;
+    }
 
-button {
-    padding: 12px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
+    .screen {
+      display: none;
+      padding: 20px;
+    }
 
-.menu-btn {
-    background: #00796b;
-    color: white;
-    width: 100%;
-    margin-bottom: 10px;
-}
+    .screen.active {
+      display: block;
+    }
 
-.choice-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
+    button {
+      background: linear-gradient(135deg, #ff9800, #ff5722);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      padding: 14px 18px;
+      margin: 10px;
+      cursor: pointer;
+      min-width: 140px;
+      box-shadow: 0 4px 0 #c43e14;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
 
-.choice-btn {
-    background: #0288d1;
-    color: white;
-}
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #c43e14;
+    }
 
-.choice-btn:hover {
-    background: #0277bd;
-}
+    #word {
+      font-size: 1.3rem;
+      margin: 20px 0;
+      white-space: pre-line;
+    }
 
-.correct {
-    color: green;
-    font-weight: bold;
-}
+    #choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
 
-input {
-    padding: 10px;
-    width: 100%;
-    font-size: 16px;
-    margin-top: 10px;
-}
+    #feedback {
+      margin-top: 20px;
+      font-size: 1rem;
+      white-space: pre-line;
+    }
 
-#card {
-    background: white;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 10px;
-}
+    .speaker {
+      font-size: 1.6rem;
+      cursor: pointer;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
 
-.score {
-    text-align: center;
-    font-size: 18px;
-    margin-top: 10px;
-}
-</style>
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>🇵🇹 Portuguese Verb Trainer</h1>
+  <!-- ================= MENU SCREEN ================= -->
+  <div id="menu" class="screen active">
+    <h1>🇵🇹 Portuguese Practice</h1>
 
-<button class="menu-btn" onclick="startVocab()">Vocabulary Practice</button>
-<button class="menu-btn" onclick="startConjugation()">Conjugation Practice</button>
+    <button onclick="startVocab()">Vocabulary</button><br>
+    <button onclick="startConjugation()">Conjugation</button><br>
+    <button onclick="startPhrases()">Common Phrases</button>
+  </div>
 
-<div class="score">
-Score: <span id="score">0</span>
-</div>
+  <!-- ================= PRACTICE SCREEN ================= -->
+  <div id="practice" class="screen">
+    <div class="top-bar">
+      <button onclick="goBack()">⬅ Back</button>
+      <span class="speaker" onclick="playAudio()">🔊</span>
+    </div>
 
-<div id="card"></div>
+    <div id="word"></div>
 
-<script>
-/* ================= VERB LIST (200) ================= */
-const verbs = [
-["ser","to be","sou"],["estar","to be","estou"],["ter","to have","tenho"],
-["fazer","to do/make","faço"],["dizer","to say","digo"],["ir","to go","vou"],
-["ver","to see","vejo"],["dar","to give","dou"],["saber","to know","sei"],
-["querer","to want","quero"],["chegar","to arrive","chego"],
-["passar","to pass","passo"],["dever","must","devo"],["ficar","to stay","fico"],
-["deixar","to leave","deixo"],["encontrar","to find","encontro"],
-["levar","to take","levo"],["trazer","to bring","trago"],
-["falar","to speak","falo"],["pôr","to put","ponho"],
-["comer","to eat","como"],["beber","to drink","bebo"],
-["viver","to live","vivo"],["partir","to leave","parto"],
-["amar","to love","amo"],["trabalhar","to work","trabalho"],
-["pensar","to think","penso"],["acreditar","to believe","acredito"],
-["estudar","to study","estudo"],["aprender","to learn","aprendo"],
-["escrever","to write","escrevo"],["ler","to read","leio"],
-["abrir","to open","abro"],["fechar","to close","fecho"],
-["andar","to walk","ando"],["correr","to run","corro"],
-["dirigir","to drive","dirijo"],["viajar","to travel","viajo"],
-["comprar","to buy","compro"],["pagar","to pay","pago"],
-["ajudar","to help","ajudo"],["ouvir","to hear","ouço"],
-["escutar","to listen","escuto"],["olhar","to look","olho"],
-["sentir","to feel","sinto"],["usar","to use","uso"],
-["tentar","to try","tento"],["ganhar","to win","ganho"],
-["perder","to lose","perco"],["esperar","to wait/hope","espero"],
-["precisar","to need","preciso"],["gostar","to like","gosto"],
-["odiar","to hate","odeio"],["conhecer","to know","conheço"],
-["nascer","to be born","nasço"],["morrer","to die","morro"],
-["voltar","to return","volto"],["entrar","to enter","entro"],
-["sair","to leave","saio"],["subir","to go up","subo"],
-["descer","to go down","desço"],
-["continuar","to continue","continuo"],
-["terminar","to finish","termino"],
-["começar","to begin","começo"],
-["escolher","to choose","escolho"],
-["mudar","to change","mudo"],
-["mostrar","to show","mostro"],
-["aceitar","to accept","aceito"],
-["recusar","to refuse","recuso"],
-["lembrar","to remember","lembro"],
-["esquecer","to forget","esqueço"],
-["cair","to fall","caio"],
-["levantar","to raise","levanto"],
-["sentar","to sit","sento"],
-["dormir","to sleep","durmo"],
-["acordar","to wake","acordo"],
-["rir","to laugh","rio"],
-["chorar","to cry","choro"],
-["brincar","to play","brinco"],
-["jogar","to play","jogo"],
-["ligar","to call","ligo"],
-["desligar","to turn off","desligo"],
-["usar","to use","uso"],
-["criar","to create","crio"],
-["vender","to sell","vendo"],
-["servir","to serve","sirvo"],
-["ficar","to become","fico"]
-];
+    <div id="choices"></div>
 
-/* ================= STATE ================= */
-let seen = JSON.parse(localStorage.getItem("seen")) || {};
-let score = parseInt(localStorage.getItem("score")) || 0;
-document.getElementById("score").innerText = score;
+    <div id="feedback"></div>
 
-/* ================= AUDIO ================= */
-function speak(word) {
-    const u = new SpeechSynthesisUtterance(word);
-    u.lang = "pt-PT";
-    speechSynthesis.speak(u);
-}
+    <button onclick="nextQuestion()">Next ▶</button>
+  </div>
 
-/* ================= VOCAB ================= */
-function startVocab() {
-    nextVocab();
-}
-
-function nextVocab() {
-    const v = verbs[Math.floor(Math.random()*verbs.length)];
-    const pt = v[0], en = v[1];
-    const first = !seen[pt];
-    seen[pt] = true;
-    localStorage.setItem("seen", JSON.stringify(seen));
-
-    let html = `<h2>${pt}</h2>
-    <button onclick="speak('${pt}')">🔊 Hear</button>`;
-
-    if (first) {
-        let options = verbs.map(x=>x[1]).sort(()=>0.5-Math.random()).slice(0,3);
-        options.push(en);
-        options.sort(()=>0.5-Math.random());
-
-        html += `<div class="choice-grid">`;
-        options.forEach(o=>{
-            html += `<button class="choice-btn" onclick="checkVocab('${o}','${en}')">${o}</button>`;
-        });
-        html += `</div>`;
-    } else {
-        html += `<input id="answer">
-        <button class="menu-btn" onclick="checkTyped('${en}')">Check</button>`;
-    }
-
-    document.getElementById("card").innerHTML = html;
-}
-
-function checkVocab(choice, correct) {
-    if (choice === correct) success(nextVocab);
-    else fail(correct, nextVocab);
-}
-
-function checkTyped(correct) {
-    const v = document.getElementById("answer").value.toLowerCase();
-    v === correct.toLowerCase() ? success(nextVocab) : fail(correct, nextVocab);
-}
-
-/* ================= CONJUGATION ================= */
-function startConjugation() {
-    nextConj();
-}
-
-function nextConj() {
-    const v = verbs[Math.floor(Math.random()*verbs.length)];
-    document.getElementById("card").innerHTML = `
-    <h2>${v[0]}</h2>
-    <button onclick="speak('${v[0]}')">🔊 Hear</button>
-    <p>English: ${v[1]}</p>
-    <p>Present tense (eu)</p>
-    <input id="conj">
-    <button class="menu-btn" onclick="checkConj('${v[2]}')">Check</button>`;
-}
-
-function checkConj(correct) {
-    const v = document.getElementById("conj").value.toLowerCase();
-    v === correct.toLowerCase() ? success(nextConj) : fail(correct, nextConj);
-}
-
-/* ================= FEEDBACK ================= */
-function success(next) {
-    score++;
-    localStorage.setItem("score", score);
-    document.getElementById("score").innerText = score;
-    alert("✅ Correct!");
-    next();
-}
-
-function fail(correct, next) {
-    alert("❌ Correct answer: " + correct);
-    next();
-}
-</script>
+  <!-- ================= SCRIPTS ================= -->
+  <!-- IMPORTANT: verbs.js MUST load first -->
+  <script src="verbs.js"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>
