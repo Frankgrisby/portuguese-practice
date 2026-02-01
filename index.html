@@ -2,178 +2,243 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Portuguese Practice App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Path to Portuguese</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #1e1e2f, #0b0b14);
-      color: #fff;
-      text-align: center;
-    }
+/* ================== CSS ================== */
+:root {
+  --primary: #00eaff;
+  --accent: #ffcc00;
+  --bg-dark: #070b14;
+  --correct: #00ff88;
+  --wrong: #ff4d4d;
+}
 
-    h1 {
-      margin-top: 30px;
-    }
+* {
+  box-sizing: border-box;
+  touch-action: manipulation;
+}
 
-    .screen {
-      display: none;
-      padding: 20px;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: radial-gradient(circle at top, #1b2735, var(--bg-dark));
+  color: white;
+  text-align: center;
+  overflow-x: hidden;
+}
 
-    .screen.active {
-      display: block;
-    }
+h1 {
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
+  margin: 16px 0;
+  text-shadow: 0 0 12px var(--primary);
+}
 
-    button {
-      background: linear-gradient(135deg, #ff9800, #ff5722);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 1rem;
-      padding: 14px;
-      margin: 8px;
-      cursor: pointer;
-      min-width: 160px;
-      box-shadow: 0 4px 0 #c43e14;
-    }
+h2 {
+  margin: 12px 0;
+}
 
-    button:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #c43e14;
-    }
+.hidden {
+  display: none !important;
+}
 
-    button.small {
-      font-size: 0.9rem;
-      min-width: 90px;
-      padding: 8px;
-    }
+.screen {
+  padding: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+}
 
-    button.active {
-      background: linear-gradient(135deg, #4caf50, #2e7d32);
-      box-shadow: 0 4px 0 #1b5e20;
-    }
+button {
+  width: 100%;
+  padding: 16px;
+  margin: 8px 0;
+  font-size: 1rem;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--primary), #0077ff);
+  color: black;
+  font-weight: bold;
+  box-shadow: 0 0 14px rgba(0, 234, 255, 0.5);
+}
 
-    #word {
-      font-size: 1.3rem;
-      margin: 20px 0;
-      white-space: pre-line;
-    }
+button:active {
+  transform: scale(0.97);
+}
 
-    #choices {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      max-width: 420px;
-      margin: 0 auto;
-    }
+#choices button {
+  background: linear-gradient(135deg, #ffe259, #ffa751);
+  box-shadow: 0 0 14px rgba(255, 200, 0, 0.5);
+}
 
-    #feedback {
-      margin-top: 12px;
-      white-space: pre-line;
-    }
+#choices button.correct {
+  background: linear-gradient(135deg, var(--correct), #00cc66) !important;
+  box-shadow: 0 0 22px rgba(0, 255, 136, 0.9) !important;
+}
 
-    .speaker {
-      font-size: 1.6rem;
-      cursor: pointer;
-      margin-left: 10px;
-      vertical-align: middle;
-    }
+#choices button.wrong {
+  background: linear-gradient(135deg, var(--wrong), #cc0000) !important;
+  box-shadow: 0 0 22px rgba(255, 77, 77, 0.9) !important;
+  color: white !important;
+}
 
-    #streak {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
+#prompt {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  font-size: 1.2rem;
+}
 
-    #settings-btn {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      font-size: 1.4rem;
-      min-width: 48px;
-      padding: 10px;
-      border-radius: 50%;
-    }
+.conj-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
 
-    input {
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-      width: 220px;
-      text-align: center;
-    }
+.conj-infinitive {
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.conj-english {
+  opacity: 0.85;
+}
+
+.conj-pronoun {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+#speakerBtn {
+  width: 64px;
+  height: 64px;
+  margin: 12px auto;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  background: none;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+#streakDisplay {
+  font-size: 1.1rem;
+  margin: 6px 0;
+}
+
+#nextBtn {
+  background: linear-gradient(135deg, #ff5f6d, #ffc371);
+}
+
+#settingsBtn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #bbb, #777);
+  color: black;
+  z-index: 10;
+}
+
+#settingsPanel {
+  position: fixed;
+  bottom: 88px;
+  right: 16px;
+  background: #0e1624;
+  border: 2px solid var(--primary);
+  border-radius: 16px;
+  padding: 12px;
+  width: 260px;
+  z-index: 10;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
+}
   </style>
 </head>
 
 <body>
 
-  <!-- MAIN MENU -->
-  <div id="menu" class="screen active">
-    <h1>🇵🇹 Portuguese Practice</h1>
+<!-- MAIN MENU -->
+<div id="mainMenu" class="screen">
+  <h1>Path to Portuguese</h1>
+  <button id="btnVocabulary">Vocabulary</button>
+  <button id="btnVerbs">Verbs</button>
+  <button id="btnPhrases">Phrases</button>
+  <button id="btnConjugation">Conjugation</button>
+</div>
 
-    <button onclick="startVerbs()">Verbs</button><br>
-    <button onclick="startVocabulary()">Vocabulary</button><br>
-    <button onclick="startConjugation()">Conjugation</button><br>
-    <button onclick="startPhrases()">Common Phrases</button>
+<!-- VOCAB CATEGORIES -->
+<div id="vocabCategories" class="screen hidden">
+  <h2>Choose a Category</h2>
+  <button data-category="transportation">Transportation</button>
+  <button data-category="foods">Foods</button>
+  <button data-category="numbers">Numbers</button>
+  <button data-category="colors">Colors</button>
+  <button data-category="clothing">Clothing</button>
+  <button data-category="everyday">Everyday</button>
+  <button data-category="animals">Animals</button>
+  <button id="btnBackFromVocab">⬅ Back</button>
+</div>
 
-    <!-- Leaderboards will be added here in STEP 3 -->
+<!-- PRACTICE -->
+<div id="practiceSection" class="screen hidden">
+  <div id="streakDisplay">🔥 Streak: 0</div>
+  <button id="speakerBtn">🔊</button>
+  <div id="prompt"></div>
+  <div id="choices"></div>
+  <button id="nextBtn" class="hidden">Next ➡</button>
+  <button id="btnHome">🏠 Main Menu</button>
+</div>
 
-    <button id="settings-btn" onclick="openSettings()">⚙️</button>
-  </div>
+<!-- SETTINGS -->
+<button id="settingsBtn">⚙️</button>
 
-  <!-- PRACTICE SCREEN -->
-  <div id="practice" class="screen">
-    <button onclick="goBack()">⬅ Back</button>
+<div id="settingsPanel" class="hidden">
+  <strong>Settings</strong>
 
-    <div id="streak">🔥 Streak: 0</div>
+  <label>
+    Audio Speed
+    <select id="audioSpeed">
+      <option value="1">Normal</option>
+      <option value="0.5">Half Speed</option>
+    </select>
+  </label>
 
-    <div id="word"></div>
-    <div id="choices"></div>
-    <div id="feedback"></div>
+  <label>
+    Conjugation Tense
+    <select id="tenseToggle">
+      <option value="present">Present</option>
+      <option value="past">Past</option>
+      <option value="future">Future</option>
+    </select>
+  </label>
+</div>
 
-    <button onclick="nextQuestion()">Next ▶</button>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="settings" class="screen">
-    <h2>⚙️ Settings</h2>
-
-    <h3>Username</h3>
-    <input
-      id="usernameInput"
-      type="text"
-      placeholder="Enter username"
-      maxlength="15"
-    />
-    <br><br>
-    <button onclick="saveUsername()">Save Username</button>
-
-    <hr style="margin: 30px 0; opacity: 0.3;">
-
-    <h3>Audio Speed</h3>
-    <button class="small active" onclick="setSpeed(1)">1×</button>
-    <button class="small" onclick="setSpeed(0.5)">0.5×</button>
-
-    <br><br>
-    <button onclick="closeSettings()">Done</button>
-  </div>
-
-  <!-- FIREBASE -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-  <!-- APP DATA -->
-  <script src="verbs.js"></script>
-  <script src="vocabulary.js"></script>
-  <script src="phrases.js"></script>
-
-  <!-- APP LOGIC -->
-  <script src="app.js"></script>
+<!-- DATA + LOGIC -->
+<script src="verbs.js"></script>
+<script src="vocabulary.js"></script>
+<script src="phrases.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>

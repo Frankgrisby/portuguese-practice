@@ -1,49 +1,135 @@
-// 200 Common European Portuguese Verbs (Present Indicative)
+/* =====================================================
+   VERBS DATA + AUTO CONJUGATION ENGINE
+===================================================== */
 
-const verbs = [
-  { pt: "ser", en: "to be", forms: { eu: "sou", tu: "és", ele: "é", nós: "somos", vocês: "são", eles: "são" } },
-  { pt: "estar", en: "to be", forms: { eu: "estou", tu: "estás", ele: "está", nós: "estamos", vocês: "estão", eles: "estão" } },
-  { pt: "ter", en: "to have", forms: { eu: "tenho", tu: "tens", ele: "tem", nós: "temos", vocês: "têm", eles: "têm" } },
-  { pt: "ir", en: "to go", forms: { eu: "vou", tu: "vais", ele: "vai", nós: "vamos", vocês: "vão", eles: "vão" } },
-  { pt: "fazer", en: "to do", forms: { eu: "faço", tu: "fazes", ele: "faz", nós: "fazemos", vocês: "fazem", eles: "fazem" } },
-  { pt: "dizer", en: "to say", forms: { eu: "digo", tu: "dizes", ele: "diz", nós: "dizemos", vocês: "dizem", eles: "dizem" } },
-  { pt: "ver", en: "to see", forms: { eu: "vejo", tu: "vês", ele: "vê", nós: "vemos", vocês: "veem", eles: "veem" } },
-  { pt: "dar", en: "to give", forms: { eu: "dou", tu: "dás", ele: "dá", nós: "damos", vocês: "dão", eles: "dão" } },
-  { pt: "saber", en: "to know", forms: { eu: "sei", tu: "sabes", ele: "sabe", nós: "sabemos", vocês: "sabem", eles: "sabem" } },
-  { pt: "querer", en: "to want", forms: { eu: "quero", tu: "queres", ele: "quer", nós: "queremos", vocês: "querem", eles: "querem" } },
+const PRONOUNS = ["eu", "tu", "ele", "nós", "eles"];
 
-  { pt: "falar", en: "to speak", forms: { eu: "falo", tu: "falas", ele: "fala", nós: "falamos", vocês: "falam", eles: "falam" } },
-  { pt: "comer", en: "to eat", forms: { eu: "como", tu: "comes", ele: "come", nós: "comemos", vocês: "comem", eles: "comem" } },
-  { pt: "beber", en: "to drink", forms: { eu: "bebo", tu: "bebes", ele: "bebe", nós: "bebemos", vocês: "bebem", eles: "bebem" } },
-  { pt: "viver", en: "to live", forms: { eu: "vivo", tu: "vives", ele: "vive", nós: "vivemos", vocês: "vivem", eles: "vivem" } },
-  { pt: "trabalhar", en: "to work", forms: { eu: "trabalho", tu: "trabalhas", ele: "trabalha", nós: "trabalhamos", vocês: "trabalham", eles: "trabalham" } },
-  { pt: "estudar", en: "to study", forms: { eu: "estudo", tu: "estudas", ele: "estuda", nós: "estudamos", vocês: "estudam", eles: "estudam" } },
-  { pt: "pensar", en: "to think", forms: { eu: "penso", tu: "pensas", ele: "pensa", nós: "pensamos", vocês: "pensam", eles: "pensam" } },
-  { pt: "gostar", en: "to like", forms: { eu: "gosto", tu: "gostas", ele: "gosta", nós: "gostamos", vocês: "gostam", eles: "gostam" } },
-  { pt: "precisar", en: "to need", forms: { eu: "preciso", tu: "precisas", ele: "precisa", nós: "precisamos", vocês: "precisam", eles: "precisam" } },
-  { pt: "chegar", en: "to arrive", forms: { eu: "chego", tu: "chegas", ele: "chega", nós: "chegamos", vocês: "chegam", eles: "chegam" } },
+/* ================= IRREGULAR VERBS ================= */
 
-  { pt: "partir", en: "to leave", forms: { eu: "parto", tu: "partes", ele: "parte", nós: "partimos", vocês: "partem", eles: "partem" } },
-  { pt: "entrar", en: "to enter", forms: { eu: "entro", tu: "entras", ele: "entra", nós: "entramos", vocês: "entram", eles: "entram" } },
-  { pt: "sair", en: "to leave", forms: { eu: "saio", tu: "sais", ele: "sai", nós: "saímos", vocês: "saem", eles: "saem" } },
-  { pt: "voltar", en: "to return", forms: { eu: "volto", tu: "voltas", ele: "volta", nós: "voltamos", vocês: "voltam", eles: "voltam" } },
-  { pt: "tomar", en: "to take", forms: { eu: "tomo", tu: "tomas", ele: "toma", nós: "tomamos", vocês: "tomam", eles: "tomam" } },
-  { pt: "colocar", en: "to place", forms: { eu: "coloco", tu: "colocas", ele: "coloca", nós: "colocamos", vocês: "colocam", eles: "colocam" } },
-  { pt: "usar", en: "to use", forms: { eu: "uso", tu: "usas", ele: "usa", nós: "usamos", vocês: "usam", eles: "usam" } },
-  { pt: "mostrar", en: "to show", forms: { eu: "mostro", tu: "mostras", ele: "mostra", nós: "mostramos", vocês: "mostram", eles: "mostram" } },
-  { pt: "sentir", en: "to feel", forms: { eu: "sinto", tu: "sentes", ele: "sente", nós: "sentimos", vocês: "sentem", eles: "sentem" } },
-  { pt: "deixar", en: "to let", forms: { eu: "deixo", tu: "deixas", ele: "deixa", nós: "deixamos", vocês: "deixam", eles: "deixam" } },
-
-  { pt: "continuar", en: "to continue", forms: { eu: "continuo", tu: "continuas", ele: "continua", nós: "continuamos", vocês: "continuam", eles: "continuam" } },
-  { pt: "começar", en: "to begin", forms: { eu: "começo", tu: "começas", ele: "começa", nós: "começamos", vocês: "começam", eles: "começam" } },
-  { pt: "terminar", en: "to finish", forms: { eu: "termino", tu: "terminas", ele: "termina", nós: "terminamos", vocês: "terminam", eles: "terminam" } },
-  { pt: "conhecer", en: "to know", forms: { eu: "conheço", tu: "conheces", ele: "conhece", nós: "conhecemos", vocês: "conhecem", eles: "conhecem" } },
-  { pt: "trazer", en: "to bring", forms: { eu: "trago", tu: "trazes", ele: "traz", nós: "trazemos", vocês: "trazem", eles: "trazem" } },
-  { pt: "levar", en: "to take", forms: { eu: "levo", tu: "levas", ele: "leva", nós: "levamos", vocês: "levam", eles: "levam" } },
-  { pt: "perguntar", en: "to ask", forms: { eu: "pergunto", tu: "perguntas", ele: "pergunta", nós: "perguntamos", vocês: "perguntam", eles: "perguntam" } },
-  { pt: "responder", en: "to answer", forms: { eu: "respondo", tu: "respondes", ele: "responde", nós: "respondemos", vocês: "respondem", eles: "respondem" } },
-  { pt: "ouvir", en: "to hear", forms: { eu: "ouço", tu: "ouves", ele: "ouve", nós: "ouvimos", vocês: "ouvem", eles: "ouvem" } },
-  { pt: "olhar", en: "to look", forms: { eu: "olho", tu: "olhas", ele: "olha", nós: "olhamos", vocês: "olham", eles: "olham" } }
-
-  // COUNT: 200 verbs
+const IRREGULAR_VERBS = [
+  {
+    infinitive: "ser",
+    en: "to be",
+    conjugations: {
+      present: { eu: "sou", tu: "és", ele: "é", nós: "somos", eles: "são" },
+      past: { eu: "fui", tu: "foste", ele: "foi", nós: "fomos", eles: "foram" },
+      future: { eu: "serei", tu: "serás", ele: "será", nós: "seremos", eles: "serão" }
+    }
+  },
+  {
+    infinitive: "estar",
+    en: "to be (temporary)",
+    conjugations: {
+      present: { eu: "estou", tu: "estás", ele: "está", nós: "estamos", eles: "estão" },
+      past: { eu: "estive", tu: "estiveste", ele: "esteve", nós: "estivemos", eles: "estiveram" },
+      future: { eu: "estarei", tu: "estarás", ele: "estará", nós: "estaremos", eles: "estarão" }
+    }
+  },
+  {
+    infinitive: "ir",
+    en: "to go",
+    conjugations: {
+      present: { eu: "vou", tu: "vais", ele: "vai", nós: "vamos", eles: "vão" },
+      past: { eu: "fui", tu: "foste", ele: "foi", nós: "fomos", eles: "foram" },
+      future: { eu: "irei", tu: "irás", ele: "irá", nós: "iremos", eles: "irão" }
+    }
+  },
+  {
+    infinitive: "ter",
+    en: "to have",
+    conjugations: {
+      present: { eu: "tenho", tu: "tens", ele: "tem", nós: "temos", eles: "têm" },
+      past: { eu: "tive", tu: "tiveste", ele: "teve", nós: "tivemos", eles: "tiveram" },
+      future: { eu: "terei", tu: "terás", ele: "terá", nós: "teremos", eles: "terão" }
+    }
+  }
 ];
+
+/* ================= REGULAR VERB GENERATOR ================= */
+
+function conjugateRegular(infinitive) {
+  const stem = infinitive.slice(0, -2);
+  const type = infinitive.slice(-2);
+
+  const endings = {
+    ar: {
+      present: ["o", "as", "a", "amos", "am"],
+      past: ["ei", "aste", "ou", "ámos", "aram"],
+      future: ["arei", "arás", "ará", "aremos", "arão"]
+    },
+    er: {
+      present: ["o", "es", "e", "emos", "em"],
+      past: ["i", "este", "eu", "emos", "eram"],
+      future: ["erei", "erás", "erá", "eremos", "erão"]
+    },
+    ir: {
+      present: ["o", "es", "e", "imos", "em"],
+      past: ["i", "iste", "iu", "imos", "iram"],
+      future: ["irei", "irás", "irá", "iremos", "irão"]
+    }
+  };
+
+  const e = endings[type];
+  if (!e) return null;
+
+  return {
+    present: mapForms(stem, e.present),
+    past: mapForms(stem, e.past),
+    future: mapForms(stem, e.future)
+  };
+}
+
+function mapForms(stem, endings) {
+  return {
+    eu: stem + endings[0],
+    tu: stem + endings[1],
+    ele: stem + endings[2],
+    nós: stem + endings[3],
+    eles: stem + endings[4]
+  };
+}
+
+/* ================= REGULAR VERB LIST ================= */
+
+const REGULAR_VERBS = [
+  ["falar", "to speak"], ["andar", "to walk"], ["trabalhar", "to work"],
+  ["estudar", "to study"], ["comprar", "to buy"], ["viver", "to live"],
+  ["comer", "to eat"], ["beber", "to drink"], ["abrir", "to open"],
+  ["fechar", "to close"], ["aprender", "to learn"], ["ensinar", "to teach"],
+  ["viajar", "to travel"], ["usar", "to use"], ["amar", "to love"],
+  ["odiar", "to hate"], ["olhar", "to look"], ["ouvir", "to hear"],
+  ["pensar", "to think"], ["acreditar", "to believe"], ["morar", "to live"],
+  ["correr", "to run"], ["nadar", "to swim"], ["dirigir", "to drive"],
+  ["esperar", "to wait"], ["ajudar", "to help"], ["ligar", "to call"],
+  ["chegar", "to arrive"], ["sair", "to leave"], ["entrar", "to enter"],
+  ["voltar", "to return"], ["sentir", "to feel"], ["perder", "to lose"],
+  ["ganhar", "to win"], ["pagar", "to pay"], ["receber", "to receive"],
+  ["procurar", "to search"], ["encontrar", "to find"], ["seguir", "to follow"],
+  ["mudar", "to change"], ["criar", "to create"], ["crescer", "to grow"],
+  ["vender", "to sell"], ["dormir", "to sleep"], ["acordar", "to wake"],
+  ["cozinhar", "to cook"], ["limpar", "to clean"], ["lavar", "to wash"],
+  ["vestir", "to dress"], ["tirar", "to remove"], ["guardar", "to store"],
+  ["escrever", "to write"], ["ler", "to read"], ["responder", "to answer"],
+  ["perguntar", "to ask"], ["explicar", "to explain"], ["decidir", "to decide"],
+  ["conhecer", "to know"], ["lembrar", "to remember"], ["esquecer", "to forget"],
+  ["tentar", "to try"], ["continuar", "to continue"], ["parar", "to stop"],
+  ["começar", "to begin"], ["terminar", "to finish"], ["convidar", "to invite"],
+  ["aceitar", "to accept"], ["recusar", "to refuse"], ["visitar", "to visit"],
+  ["precisar", "to need"], ["preferir", "to prefer"], ["prometer", "to promise"],
+  ["servir", "to serve"], ["cuidar", "to take care"], ["viajar", "to travel"]
+];
+
+/* ================= BUILD FINAL VERB LIST ================= */
+
+const VERBS = [
+  ...IRREGULAR_VERBS,
+  ...REGULAR_VERBS.map(([inf, en]) => ({
+    infinitive: inf,
+    en,
+    conjugations: conjugateRegular(inf)
+  }))
+];
+
+/* ================= SAFETY ================= */
+
+console.log(`Loaded ${VERBS.length} verbs`);

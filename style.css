@@ -1,74 +1,194 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #0b132b;
-  color: white;
-  padding: 15px;
+:root {
+  --primary: #00eaff;
+  --accent: #ffcc00;
+  --bg-dark: #070b14;
+  --correct: #00ff88;
+  --wrong: #ff4d4d;
 }
+
+/* ================= RESET ================= */
+
+* {
+  box-sizing: border-box;
+  touch-action: manipulation;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: radial-gradient(circle at top, #1b2735, var(--bg-dark));
+  color: white;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* ================= HEADERS ================= */
 
 h1 {
-  text-align: center;
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
+  margin: 16px 0;
+  text-shadow: 0 0 12px var(--primary);
 }
 
-/* Screens */
+h2 {
+  margin: 12px 0;
+}
+
+/* ================= SCREENS ================= */
+
+.hidden {
+  display: none !important;
+}
+
 .screen {
-  max-width: 600px;
-  margin: auto;
-  display: none;
+  padding: 12px;
+  max-width: 420px;
+  margin: 0 auto;
 }
 
-.screen.active {
-  display: block;
-}
+/* ================= BUTTONS ================= */
 
 button {
   width: 100%;
-  padding: 14px;
-  margin: 8px 0;
-  font-size: 1.05rem;
-  border-radius: 12px;
-  border: none;
-  background: #1c2541;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #3a506b;
-}
-
-#question {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-}
-
-#speaker {
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-/* 2x2 grid for multiple choice */
-.choice-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.choice-grid button {
-  margin: 0;
-  font-size: 1rem;
   padding: 16px;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  margin: 8px 0;
   font-size: 1rem;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--primary), #0077ff);
+  color: black;
+  font-weight: bold;
+  box-shadow: 0 0 14px rgba(0, 234, 255, 0.5);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-#feedback {
-  margin-top: 12px;
+button:active {
+  transform: scale(0.97);
+}
+
+/* Multiple-choice buttons */
+#choices button {
+  background: linear-gradient(135deg, #ffe259, #ffa751);
+  box-shadow: 0 0 14px rgba(255, 200, 0, 0.5);
+}
+
+/* ================= ANSWER FEEDBACK ================= */
+
+#choices button.correct {
+  background: linear-gradient(135deg, var(--correct), #00cc66) !important;
+  color: black !important;
+  box-shadow: 0 0 22px rgba(0, 255, 136, 0.9) !important;
+}
+
+#choices button.wrong {
+  background: linear-gradient(135deg, var(--wrong), #cc0000) !important;
+  color: white !important;
+  box-shadow: 0 0 22px rgba(255, 77, 77, 0.9) !important;
+}
+
+/* ================= PROMPT ================= */
+
+#prompt {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  font-size: 1.2rem;
+}
+
+/* Conjugation layout */
+.conj-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.conj-infinitive {
+  font-size: 1.5rem;
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+}
+
+.conj-english {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.conj-pronoun {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* ================= AUDIO ================= */
+
+#speakerBtn {
+  width: 64px;
+  height: 64px;
+  margin: 12px auto;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  background: none;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 14px rgba(0, 234, 255, 0.6);
+}
+
+/* ================= STREAK ================= */
+
+#streakDisplay {
   font-size: 1.1rem;
+  margin: 6px 0;
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+}
+
+/* ================= NAV ================= */
+
+#nextBtn {
+  background: linear-gradient(135deg, #ff5f6d, #ffc371);
+}
+
+/* ================= SETTINGS ================= */
+
+#settingsBtn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #bbb, #777);
+  color: black;
+  z-index: 10;
+}
+
+#settingsPanel {
+  position: fixed;
+  bottom: 88px;
+  right: 16px;
+  background: #0e1624;
+  border: 2px solid var(--primary);
+  border-radius: 16px;
+  padding: 12px;
+  width: 260px;
+  z-index: 10;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
 }
