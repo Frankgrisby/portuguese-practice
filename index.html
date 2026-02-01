@@ -97,6 +97,15 @@
       padding: 10px;
       border-radius: 50%;
     }
+
+    input {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      width: 220px;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -111,12 +120,15 @@
     <button onclick="startConjugation()">Conjugation</button><br>
     <button onclick="startPhrases()">Common Phrases</button>
 
+    <!-- Leaderboards will be added here in STEP 3 -->
+
     <button id="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
 
-  <!-- PRACTICE -->
+  <!-- PRACTICE SCREEN -->
   <div id="practice" class="screen">
     <button onclick="goBack()">⬅ Back</button>
+
     <div id="streak">🔥 Streak: 0</div>
 
     <div id="word"></div>
@@ -130,6 +142,18 @@
   <div id="settings" class="screen">
     <h2>⚙️ Settings</h2>
 
+    <h3>Username</h3>
+    <input
+      id="usernameInput"
+      type="text"
+      placeholder="Enter username"
+      maxlength="15"
+    />
+    <br><br>
+    <button onclick="saveUsername()">Save Username</button>
+
+    <hr style="margin: 30px 0; opacity: 0.3;">
+
     <h3>Audio Speed</h3>
     <button class="small active" onclick="setSpeed(1)">1×</button>
     <button class="small" onclick="setSpeed(0.5)">0.5×</button>
@@ -138,9 +162,17 @@
     <button onclick="closeSettings()">Done</button>
   </div>
 
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- APP DATA -->
   <script src="verbs.js"></script>
   <script src="vocabulary.js"></script>
   <script src="phrases.js"></script>
+
+  <!-- APP LOGIC -->
   <script src="app.js"></script>
 
 </body>

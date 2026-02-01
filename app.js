@@ -4,6 +4,34 @@ let currentItem = null;
 let currentVerb = null;
 let correctAnswer = "";
 
+// 🔥 FIREBASE CONFIG (PASTE YOUR OWN VALUES)
+const firebaseConfig = {
+  apiKey: "AIzaSyCzgcE1oPTmAmwdAKJ8vC9TkzS1Dw1TLJ0",
+  authDomain: "portuguese-practice-app.firebaseapp.com",
+  projectId: "portuguese-practice-app",
+  storageBucket: "portuguese-practice-app.firebasestorage.app",
+  messagingSenderId: "409360223884",
+  appId: "1:409360223884:web:f23eac2ba51a483f7ff5a9"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// USER DATA
+let userId = null;
+let username = localStorage.getItem("username") || "";
+auth.signInAnonymously()
+  .then(result => {
+    userId = result.user.uid;
+    checkUsername();
+  })
+  .catch(error => {
+    console.error("Auth error:", error);
+  });
+
+
 /* GLOBAL AUDIO SETTINGS */
 let audioRate = 1;
 
@@ -41,7 +69,7 @@ function show(screen) {
 }
 
 function openSettings() {
-  show(settings);
+  show(settings);document.getElementById("usernameInput").value = username || "";
 }
 
 function closeSettings() {
@@ -248,4 +276,41 @@ function makeOptions(correct, pool) {
 
 function shuffle(arr) {
   return arr.sort(() => Math.random() - 0.5);
+}
+function checkUsername() {
+  if (!username) {
+    const name = prompt("Choose a username (3–15 characters):");
+    if (name && name.length >= 3) {
+      username = name.trim();
+      localStorage.setItem("username", username);
+      saveUserToFirebase();
+    }
+  }
+}
+
+function saveUsername() {
+  const input = document.getElementById("usernameInput").value.trim();
+  if (input.length < 3) {
+    alert("Username must be at least 3 characters.");
+    return;
+  }
+  username = input;
+  localStorage.setItem("username", username);
+  saveUserToFirebase();
+  alert("Username saved!");
+}
+
+function saveUserToFirebase() {
+  if (!userId) return;
+
+  db.collection("users").doc(userId).set({
+    username: username,
+    bestStreaks: {
+      verbs: 0,
+      vocabulary: 0,
+      conjugation: 0,
+      phrases: 0
+    },
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
 }
