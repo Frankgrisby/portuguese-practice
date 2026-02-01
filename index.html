@@ -16,7 +16,6 @@
 
     h1 {
       margin-top: 30px;
-      font-size: 2rem;
     }
 
     .screen {
@@ -34,17 +33,27 @@
       border-radius: 12px;
       color: #fff;
       font-size: 1rem;
-      padding: 14px 18px;
-      margin: 10px;
+      padding: 14px;
+      margin: 8px;
       cursor: pointer;
-      min-width: 140px;
+      min-width: 160px;
       box-shadow: 0 4px 0 #c43e14;
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
     button:active {
       transform: translateY(3px);
       box-shadow: 0 1px 0 #c43e14;
+    }
+
+    button.small {
+      font-size: 0.9rem;
+      min-width: 90px;
+      padding: 8px;
+    }
+
+    button.active {
+      background: linear-gradient(135deg, #4caf50, #2e7d32);
+      box-shadow: 0 4px 0 #1b5e20;
     }
 
     #word {
@@ -57,13 +66,12 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
-      max-width: 400px;
+      max-width: 420px;
       margin: 0 auto;
     }
 
     #feedback {
-      margin-top: 20px;
-      font-size: 1rem;
+      margin-top: 12px;
       white-space: pre-line;
     }
 
@@ -74,46 +82,65 @@
       vertical-align: middle;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 420px;
-      margin: 0 auto;
+    #streak {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    #settings-btn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      font-size: 1.4rem;
+      min-width: 48px;
+      padding: 10px;
+      border-radius: 50%;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ================= MENU SCREEN ================= -->
+  <!-- MAIN MENU -->
   <div id="menu" class="screen active">
     <h1>🇵🇹 Portuguese Practice</h1>
 
-    <button onclick="startVocab()">Vocabulary</button><br>
+    <button onclick="startVerbs()">Verbs</button><br>
+    <button onclick="startVocabulary()">Vocabulary</button><br>
     <button onclick="startConjugation()">Conjugation</button><br>
     <button onclick="startPhrases()">Common Phrases</button>
+
+    <button id="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
 
-  <!-- ================= PRACTICE SCREEN ================= -->
+  <!-- PRACTICE -->
   <div id="practice" class="screen">
-    <div class="top-bar">
-      <button onclick="goBack()">⬅ Back</button>
-      <span class="speaker" onclick="playAudio()">🔊</span>
-    </div>
+    <button onclick="goBack()">⬅ Back</button>
+    <div id="streak">🔥 Streak: 0</div>
 
     <div id="word"></div>
-
     <div id="choices"></div>
-
     <div id="feedback"></div>
 
     <button onclick="nextQuestion()">Next ▶</button>
   </div>
 
-  <!-- ================= SCRIPTS ================= -->
-  <!-- IMPORTANT: verbs.js MUST load first -->
+  <!-- SETTINGS -->
+  <div id="settings" class="screen">
+    <h2>⚙️ Settings</h2>
+
+    <h3>Audio Speed</h3>
+    <button class="small active" onclick="setSpeed(1)">1×</button>
+    <button class="small" onclick="setSpeed(0.5)">0.5×</button>
+
+    <br><br>
+    <button onclick="closeSettings()">Done</button>
+  </div>
+
   <script src="verbs.js"></script>
+  <script src="vocabulary.js"></script>
+  <script src="phrases.js"></script>
   <script src="app.js"></script>
 
 </body>

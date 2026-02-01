@@ -1,219 +1,251 @@
-// ================= GLOBAL SETUP =================
-
-// Force-hide any legacy inputs (safety)
-window.onload = () => {
-  const input = document.getElementById("textInput");
-  const submit = document.getElementById("submitBtn");
-  if (input) input.style.display = "none";
-  if (submit) submit.style.display = "none";
-};
-
-// ================= DATA =================
-
-const pronouns = ["eu", "tu", "ele", "nós", "vocês", "eles"];
-
-// ================= COMMON PHRASES =================
-
-const phrases = [
-  { pt: "Olá", en: "Hello" },
-  { pt: "Bom dia", en: "Good morning" },
-  { pt: "Boa tarde", en: "Good afternoon" },
-  { pt: "Boa noite", en: "Good evening" },
-  { pt: "Tudo bem?", en: "How are you?" },
-  { pt: "Obrigado", en: "Thank you" },
-  { pt: "Por favor", en: "Please" },
-  { pt: "Desculpa", en: "Sorry" },
-  { pt: "Com licença", en: "Excuse me" },
-  { pt: "Não sei", en: "I don't know" },
-  { pt: "Pode repetir?", en: "Can you repeat?" },
-  { pt: "Não entendo", en: "I don't understand" },
-  { pt: "Quanto custa?", en: "How much does it cost?" },
-  { pt: "Onde fica a casa de banho?", en: "Where is the bathroom?" },
-  { pt: "Preciso de ajuda", en: "I need help" },
-  { pt: "Até logo", en: "See you later" },
-  { pt: "Até amanhã", en: "See you tomorrow" },
-  { pt: "Boa sorte", en: "Good luck" },
-  { pt: "Sem problema", en: "No problem" },
-  { pt: "Estou cansado", en: "I am tired" },
-  { pt: "Estou com fome", en: "I am hungry" },
-  { pt: "Vamos", en: "Let's go" }
-];
-
-// ================= PROGRESS =================
-
-let progress = JSON.parse(localStorage.getItem("ptProgress")) || {};
-
-[...verbs.map(v => v.pt), ...phrases.map(p => p.pt)].forEach(key => {
-  if (!progress[key]) {
-    progress[key] = { seen: 0, correct: 0, wrong: 0 };
-  }
-});
-
-function saveProgress() {
-  localStorage.setItem("ptProgress", JSON.stringify(progress));
-}
-
-// ================= STATE =================
-
 let mode = "";
+let vocabCategory = null;
 let currentItem = null;
+let currentVerb = null;
 let correctAnswer = "";
 
-// ================= SCREEN CONTROL =================
+/* GLOBAL AUDIO SETTINGS */
+let audioRate = 1;
 
-function show(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+/* STREAK */
+let streak = 0;
+
+/* ELEMENTS */
+const menu = document.getElementById("menu");
+const practice = document.getElementById("practice");
+const settings = document.getElementById("settings");
+
+const wordDiv = document.getElementById("word");
+const choicesDiv = document.getElementById("choices");
+const feedbackDiv = document.getElementById("feedback");
+const streakDiv = document.getElementById("streak");
+
+/* DATA */
+const safeVerbs = verbs.filter(v => v.forms && Object.keys(v.forms).length >= 4);
+
+const celebrations = [
+  { pt: "Excelente!", en: "Excellent!" },
+  { pt: "Muito bem!", en: "Very good!" },
+  { pt: "Fantástico!", en: "Fantastic!" },
+  { pt: "Estás a arrasar!", en: "You're crushing it!" },
+  { pt: "Continua assim!", en: "Keep it up!" }
+];
+
+/* ---------- NAVIGATION ---------- */
+
+function show(screen) {
+  menu.classList.remove("active");
+  practice.classList.remove("active");
+  settings.classList.remove("active");
+  screen.classList.add("active");
 }
 
-// ================= START MODES =================
+function openSettings() {
+  show(settings);
+}
 
-function startVocab() {
-  mode = "vocab";
-  show("practice");
+function closeSettings() {
+  show(menu);
+}
+
+function goBack() {
+  show(menu);
+  vocabCategory = null;
+}
+
+/* ---------- SETTINGS ---------- */
+
+function setSpeed(rate) {
+  audioRate = rate;
+
+  document.querySelectorAll("#settings button")
+    .forEach(b => b.classList.remove("active"));
+
+  event.target.classList.add("active");
+}
+
+/* ---------- STREAK ---------- */
+
+function resetStreak() {
+  streak = 0;
+  streakDiv.textContent = `🔥 Streak: ${streak}`;
+}
+
+/* ---------- START MODES ---------- */
+
+function startVerbs() {
+  mode = "verbs";
+  resetStreak();
+  show(practice);
   nextQuestion();
+}
+
+function startVocabulary() {
+  mode = "vocabulary";
+  resetStreak();
+  show(practice);
+  showVocabCategories();
 }
 
 function startConjugation() {
   mode = "conjugation";
-  show("practice");
+  resetStreak();
+  show(practice);
   nextQuestion();
 }
 
 function startPhrases() {
   mode = "phrases";
-  show("practice");
+  resetStreak();
+  show(practice);
   nextQuestion();
 }
 
-function goBack() {
-  show("menu");
-}
+/* ---------- VOCAB CATEGORIES ---------- */
 
-// ================= HELPERS =================
+function showVocabCategories() {
+  wordDiv.innerHTML = "<strong>Select a category</strong>";
+  choicesDiv.innerHTML = "";
+  feedbackDiv.textContent = "";
 
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// ================= NEXT QUESTION =================
-
-function nextQuestion() {
-  document.getElementById("choices").innerHTML = "";
-  document.getElementById("feedback").innerText = "";
-
-  if (mode === "vocab") vocabQuestion();
-  else if (mode === "conjugation") conjugationQuestion();
-  else if (mode === "phrases") phrasesQuestion();
-
-  updateStats();
-}
-
-// ================= VOCAB =================
-
-function vocabQuestion() {
-  currentItem = pick(verbs);
-  correctAnswer = currentItem.en;
-  progress[currentItem.pt].seen++;
-
-  document.getElementById("word").innerText =
-    `What does "${currentItem.pt}" mean?`;
-
-  makeChoices(verbs.map(v => v.en), correctAnswer);
-}
-
-// ================= CONJUGATION =================
-
-function conjugationQuestion() {
-  currentItem = pick(verbs);
-  const pronoun = pick(pronouns);
-  correctAnswer = currentItem.forms[pronoun];
-  progress[currentItem.pt].seen++;
-
-  document.getElementById("word").innerText =
-    `Conjugate "${currentItem.pt}"\nPronoun: ${pronoun}`;
-
-  makeChoices(
-    pronouns.map(p => currentItem.forms[p]),
-    correctAnswer
-  );
-}
-
-// ================= PHRASES =================
-
-function phrasesQuestion() {
-  currentItem = pick(phrases);
-  correctAnswer = currentItem.en;
-  progress[currentItem.pt].seen++;
-
-  document.getElementById("word").innerText =
-    `What does "${currentItem.pt}" mean?`;
-
-  makeChoices(phrases.map(p => p.en), correctAnswer);
-}
-
-// ================= MULTIPLE CHOICE =================
-
-function makeChoices(pool, correct) {
-  const options = [correct];
-  while (options.length < 4) {
-    const o = pick(pool);
-    if (!options.includes(o)) options.push(o);
-  }
-
-  options.sort(() => Math.random() - 0.5);
-
-  options.forEach(opt => {
+  Object.keys(vocabulary).forEach(cat => {
     const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => grade(opt);
-    document.getElementById("choices").appendChild(btn);
+    btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+    btn.onclick = () => {
+      vocabCategory = cat;
+      nextQuestion();
+    };
+    choicesDiv.appendChild(btn);
   });
 }
 
-// ================= GRADING =================
+/* ---------- NEXT ---------- */
 
-function grade(answer) {
-  const key = currentItem.pt;
-  const isCorrect = answer === correctAnswer;
+function nextQuestion() {
+  feedbackDiv.textContent = "";
+  choicesDiv.innerHTML = "";
 
-  if (isCorrect) {
-    progress[key].correct++;
-    document.getElementById("feedback").innerText = "✅ Correct!";
+  if (mode === "verbs") loadVerbVocab();
+  if (mode === "vocabulary" && vocabCategory) loadCategoryVocab();
+  if (mode === "conjugation") loadConjugation();
+  if (mode === "phrases") loadPhrase();
+}
 
-    // 🔊 AUTO PLAY AUDIO FOR CORRECT CONJUGATION
-    if (mode === "conjugation") {
-      const u = new SpeechSynthesisUtterance(answer);
-      u.lang = "pt-PT";
-      speechSynthesis.speak(u);
-    }
+/* ---------- MODES ---------- */
 
+function loadVerbVocab() {
+  currentItem = randomItem(verbs);
+  correctAnswer = currentItem.en;
+
+  wordDiv.innerHTML = `
+    ${currentItem.pt}
+    <span class="speaker" onclick="speak('${currentItem.pt}')">🔊</span>
+  `;
+
+  renderChoices(makeOptions(correctAnswer, verbs.map(v => v.en)));
+}
+
+function loadCategoryVocab() {
+  const list = vocabulary[vocabCategory];
+  currentItem = randomItem(list);
+  correctAnswer = currentItem.en;
+
+  wordDiv.innerHTML = `
+    ${currentItem.pt}
+    <span class="speaker" onclick="speak('${currentItem.pt}')">🔊</span>
+  `;
+
+  renderChoices(makeOptions(correctAnswer, list.map(v => v.en)));
+}
+
+function loadConjugation() {
+  currentVerb = randomItem(safeVerbs);
+  const pronouns = Object.keys(currentVerb.forms);
+  const pronoun = randomItem(pronouns);
+
+  correctAnswer = currentVerb.forms[pronoun];
+
+  wordDiv.innerHTML = `
+    <strong>${currentVerb.pt}</strong>
+    <span class="speaker" onclick="speak('${currentVerb.pt}')">🔊</span><br>
+    <em>${currentVerb.en}</em><br>
+    ${pronoun} — Present
+  `;
+
+  renderChoices(makeOptions(
+    correctAnswer,
+    pronouns.map(p => currentVerb.forms[p])
+  ));
+}
+
+function loadPhrase() {
+  currentItem = randomItem(phrases);
+  correctAnswer = currentItem.english;
+
+  wordDiv.innerHTML = `
+    ${currentItem.portuguese}
+    <span class="speaker" onclick="speak('${currentItem.portuguese}')">🔊</span>
+  `;
+
+  renderChoices(makeOptions(
+    correctAnswer,
+    phrases.map(p => p.english)
+  ));
+}
+
+/* ---------- ANSWERS ---------- */
+
+function renderChoices(options) {
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => checkAnswer(opt);
+    choicesDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(answer) {
+  if (answer === correctAnswer) {
+    streak++;
+    streakDiv.textContent = `🔥 Streak: ${streak}`;
+    feedbackDiv.textContent = "✅ Correct!";
+
+    if (mode === "conjugation") speak(correctAnswer);
+    if (streak % 10 === 0) celebrate();
   } else {
-    progress[key].wrong++;
-    document.getElementById("feedback").innerText =
-      `❌ Wrong — ${correctAnswer}`;
+    resetStreak();
+    feedbackDiv.textContent = `❌ Correct answer:\n${correctAnswer}`;
   }
-
-  saveProgress();
 }
 
-// ================= STATS =================
+/* ---------- CELEBRATION ---------- */
 
-function updateStats() {
-  const values = Object.values(progress);
-  const seen = values.reduce((s, v) => s + v.seen, 0);
-  const correct = values.reduce((s, v) => s + v.correct, 0);
-  const acc = seen ? Math.round((correct / seen) * 100) : 0;
-
-  document.getElementById("feedback").innerText +=
-    `\n📊 Accuracy: ${acc}% | Seen: ${seen}`;
+function celebrate() {
+  const msg = randomItem(celebrations);
+  feedbackDiv.textContent = `🎉 ${msg.pt}\n${msg.en}`;
+  speak(msg.pt);
 }
 
-// ================= AUDIO (MANUAL BUTTON) =================
+/* ---------- AUDIO ---------- */
 
-function playAudio() {
-  if (!currentItem) return;
-  const u = new SpeechSynthesisUtterance(currentItem.pt);
-  u.lang = "pt-PT";
-  speechSynthesis.speak(u);
+function speak(text) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "pt-PT";
+  utter.rate = audioRate;
+  speechSynthesis.speak(utter);
+}
+
+/* ---------- UTIL ---------- */
+
+function randomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function makeOptions(correct, pool) {
+  const others = pool.filter(p => p !== correct);
+  return shuffle([correct, ...shuffle(others).slice(0, 3)]);
+}
+
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
