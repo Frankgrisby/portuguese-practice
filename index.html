@@ -1,195 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Path to Portuguese</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta charset="UTF-8" />
+<title>Path to Portuguese</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-/* ================== CSS ================== */
-:root {
-  --primary: #00eaff;
-  --accent: #ffcc00;
-  --bg-dark: #070b14;
-  --correct: #00ff88;
-  --wrong: #ff4d4d;
+<style>
+:root{
+  --primary:#00eaff;
+  --bg:#070b14;
+  --correct:#00ff88;
+  --wrong:#ff4d4d;
 }
 
-* {
-  box-sizing: border-box;
-  touch-action: manipulation;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:system-ui;
+  background:radial-gradient(circle at top,#1b2735,var(--bg));
+  color:white;
+  text-align:center;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
-  background: radial-gradient(circle at top, #1b2735, var(--bg-dark));
-  color: white;
-  text-align: center;
-  overflow-x: hidden;
+.hidden{display:none!important}
+
+.screen{
+  max-width:420px;
+  margin:auto;
+  padding:12px;
 }
 
-h1 {
-  font-size: clamp(1.8rem, 6vw, 2.4rem);
-  margin: 16px 0;
-  text-shadow: 0 0 12px var(--primary);
+h1{
+  text-shadow:0 0 12px var(--primary);
 }
 
-h2 {
-  margin: 12px 0;
+button{
+  width:100%;
+  padding:16px;
+  margin:8px 0;
+  border:none;
+  border-radius:16px;
+  font-weight:bold;
+  background:linear-gradient(135deg,var(--primary),#0077ff);
+  cursor:pointer;
 }
 
-.hidden {
-  display: none !important;
+#choices button{
+  background:linear-gradient(135deg,#ffe259,#ffa751);
 }
 
-.screen {
-  padding: 12px;
-  max-width: 420px;
-  margin: 0 auto;
+#choices button.correct{
+  background:linear-gradient(135deg,var(--correct),#00cc66)!important;
 }
 
-button {
-  width: 100%;
-  padding: 16px;
-  margin: 8px 0;
-  font-size: 1rem;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  background: linear-gradient(135deg, var(--primary), #0077ff);
-  color: black;
-  font-weight: bold;
-  box-shadow: 0 0 14px rgba(0, 234, 255, 0.5);
+#choices button.wrong{
+  background:linear-gradient(135deg,var(--wrong),#cc0000)!important;
+  color:white!important;
 }
 
-button:active {
-  transform: scale(0.97);
+#speakerBtn{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  border:2px solid var(--primary);
+  background:none;
+  color:var(--primary);
+  font-size:1.5rem;
 }
 
-#choices button {
-  background: linear-gradient(135deg, #ffe259, #ffa751);
-  box-shadow: 0 0 14px rgba(255, 200, 0, 0.5);
+#prompt{
+  min-height:120px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:6px;
 }
 
-#choices button.correct {
-  background: linear-gradient(135deg, var(--correct), #00cc66) !important;
-  box-shadow: 0 0 22px rgba(0, 255, 136, 0.9) !important;
+.conj-stack{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 
-#choices button.wrong {
-  background: linear-gradient(135deg, var(--wrong), #cc0000) !important;
-  box-shadow: 0 0 22px rgba(255, 77, 77, 0.9) !important;
-  color: white !important;
+#settingsBtn{
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  width:56px;
+  height:56px;
+  border-radius:50%;
 }
 
-#prompt {
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  font-size: 1.2rem;
+#settingsPanel{
+  position:fixed;
+  bottom:88px;
+  right:16px;
+  background:#0e1624;
+  padding:12px;
+  border-radius:12px;
+  width:240px;
 }
-
-.conj-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-}
-
-.conj-infinitive {
-  font-size: 1.5rem;
-  color: var(--accent);
-}
-
-.conj-english {
-  opacity: 0.85;
-}
-
-.conj-pronoun {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-#speakerBtn {
-  width: 64px;
-  height: 64px;
-  margin: 12px auto;
-  border-radius: 50%;
-  font-size: 1.6rem;
-  background: none;
-  border: 2px solid var(--primary);
-  color: var(--primary);
-}
-
-#streakDisplay {
-  font-size: 1.1rem;
-  margin: 6px 0;
-}
-
-#nextBtn {
-  background: linear-gradient(135deg, #ff5f6d, #ffc371);
-}
-
-#settingsBtn {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  font-size: 1.4rem;
-  background: linear-gradient(135deg, #bbb, #777);
-  color: black;
-  z-index: 10;
-}
-
-#settingsPanel {
-  position: fixed;
-  bottom: 88px;
-  right: 16px;
-  background: #0e1624;
-  border: 2px solid var(--primary);
-  border-radius: 16px;
-  padding: 12px;
-  width: 260px;
-  z-index: 10;
-  text-align: left;
-}
-
-label {
-  display: block;
-  margin-top: 12px;
-  font-size: 0.9rem;
-}
-
-select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 6px;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-  </style>
+</style>
 </head>
 
 <body>
 
-<!-- MAIN MENU -->
 <div id="mainMenu" class="screen">
   <h1>Path to Portuguese</h1>
   <button id="btnVocabulary">Vocabulary</button>
   <button id="btnVerbs">Verbs</button>
   <button id="btnPhrases">Phrases</button>
   <button id="btnConjugation">Conjugation</button>
+  <button id="btnEar">Ear Training</button>
 </div>
 
-<!-- VOCAB CATEGORIES -->
 <div id="vocabCategories" class="screen hidden">
-  <h2>Choose a Category</h2>
+  <h2>Choose Category</h2>
   <button data-category="transportation">Transportation</button>
   <button data-category="foods">Foods</button>
   <button data-category="numbers">Numbers</button>
@@ -200,7 +127,6 @@ select {
   <button id="btnBackFromVocab">⬅ Back</button>
 </div>
 
-<!-- PRACTICE -->
 <div id="practiceSection" class="screen hidden">
   <div id="streakDisplay">🔥 Streak: 0</div>
   <button id="speakerBtn">🔊</button>
@@ -210,34 +136,29 @@ select {
   <button id="btnHome">🏠 Main Menu</button>
 </div>
 
-<!-- SETTINGS -->
 <button id="settingsBtn">⚙️</button>
 
 <div id="settingsPanel" class="hidden">
-  <strong>Settings</strong>
-
-  <label>
-    Audio Speed
+  <label>Audio Speed
     <select id="audioSpeed">
       <option value="1">Normal</option>
-      <option value="0.5">Half Speed</option>
+      <option value="0.5">Half</option>
     </select>
   </label>
 
-  <label>
-    Conjugation Tense
-    <select id="tenseToggle">
-      <option value="present">Present</option>
-      <option value="past">Past</option>
-      <option value="future">Future</option>
+  <label>Tenses (Conjugation Only)
+    <select id="tenseToggle" multiple>
+      <option value="present" selected>Present</option>
+      <option value="past" selected>Past</option>
+      <option value="future" selected>Future</option>
     </select>
   </label>
 </div>
 
-<!-- DATA + LOGIC -->
 <script src="verbs.js"></script>
 <script src="vocabulary.js"></script>
 <script src="phrases.js"></script>
+<script src="eartraining.js"></script>
 <script src="app.js"></script>
 
 </body>

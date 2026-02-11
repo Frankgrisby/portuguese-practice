@@ -40,3 +40,4 @@ const EAR_TRAINING = [
     response: "Posso te ajudar."
   }
 ];
+            
