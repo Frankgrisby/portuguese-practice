@@ -6,11 +6,7 @@ let currentCategory = null;
 let currentItem = null;
 let streak = 0;
 let audioRate = 1;
-
-// Conjugation-only settings
-const CONJUGATION_SETTINGS = {
-  tense: "present" // default
-};
+let earPhase = 1; // 1 = translation, 2 = response
 
 /* =====================================================
    DOM
@@ -36,6 +32,19 @@ function updateStreak() {
   streakDisplay.textContent = `🔥 Streak: ${streak}`;
 }
 
+function showScreen(screen) {
+  [mainMenu, vocabCategories, practiceSection].forEach(s =>
+    s.classList.add("hidden")
+  );
+  screen.classList.remove("hidden");
+}
+
+function resetPractice() {
+  streak = 0;
+  updateStreak();
+  nextBtn.classList.add("hidden");
+}
+
 /* =====================================================
    AUDIO
 ===================================================== */
@@ -51,27 +60,16 @@ function speak(text) {
 }
 
 /* =====================================================
-   NAVIGATION
-===================================================== */
-function showScreen(screen) {
-  [mainMenu, vocabCategories, practiceSection].forEach(s =>
-    s.classList.add("hidden")
-  );
-  screen.classList.remove("hidden");
-}
-
-function resetPractice() {
-  streak = 0;
-  updateStreak();
-  nextBtn.classList.add("hidden");
-}
-
-/* =====================================================
    LOAD QUESTION
 ===================================================== */
 function loadQuestion() {
   choicesEl.innerHTML = "";
   nextBtn.classList.add("hidden");
+
+  if (currentMode === "ear") {
+    loadEarTraining();
+    return;
+  }
 
   let pool;
   if (currentMode === "vocabulary") pool = VOCABULARY[currentCategory];
@@ -86,83 +84,12 @@ function loadQuestion() {
 
   currentItem = pool[Math.floor(Math.random() * pool.length)];
 
-  /* ================= CONJUGATION ================= */
-  if (currentMode === "conjugation") {
-    const tense = CONJUGATION_SETTINGS.tense;
+  /* ================= NORMAL MODES ================= */
 
-    if (!currentItem.conjugations || !currentItem.conjugations[tense]) {
-      loadQuestion();
-      return;
-    }
-
-    const forms = currentItem.conjugations[tense];
-    const pronouns = Object.keys(forms);
-    const pronoun = pronouns[Math.floor(Math.random() * pronouns.length)];
-    const correct = forms[pronoun];
-
-    promptEl.innerHTML = `
-      <div class="conj-stack">
-        <div class="conj-infinitive">${currentItem.infinitive}</div>
-        <div class="conj-english">${currentItem.en}</div>
-        <div class="conj-pronoun">${pronoun} · ${tense}</div>
-      </div>
-    `;
-
-    let options = shuffle(Object.values(forms)).slice(0, 4);
-    if (!options.includes(correct)) options[3] = correct;
-    options = shuffle(options);
-
-    options.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.textContent = opt;
-
-      btn.onclick = () => {
-        const buttons = document.querySelectorAll("#choices button");
-
-        if (opt === correct) {
-          btn.classList.add("correct");
-          streak++;
-          updateStreak();
-          speak(opt);
-
-          requestAnimationFrame(() => {
-            setTimeout(loadQuestion, 900);
-          });
-        } else {
-          btn.classList.add("wrong");
-          buttons.forEach(b => {
-            if (b.textContent === correct) {
-              b.classList.add("correct");
-            }
-          });
-          streak = 0;
-          updateStreak();
-          nextBtn.classList.remove("hidden");
-        }
-      };
-
-      choicesEl.appendChild(btn);
-    });
-
-    return;
-  }
-
-  /* ================= VOCAB / VERBS / PHRASES ================= */
-  let questionPT;
-  let correctEN;
-
-  if (currentMode === "verbs") {
-    questionPT = currentItem.infinitive;
-    correctEN = currentItem.en;
-  } else {
-    questionPT = currentItem.pt;
-    correctEN = currentItem.en;
-  }
-
-  promptEl.textContent = questionPT;
+  promptEl.textContent = currentItem.pt;
 
   let options = shuffle(
-    pool.filter(i => i.en !== correctEN)
+    pool.filter(i => i.en !== currentItem.en)
   ).slice(0, 3);
 
   options.push(currentItem);
@@ -173,23 +100,14 @@ function loadQuestion() {
     btn.textContent = opt.en;
 
     btn.onclick = () => {
-      const buttons = document.querySelectorAll("#choices button");
-
-      if (opt.en === correctEN) {
+      if (opt.en === currentItem.en) {
         btn.classList.add("correct");
         streak++;
         updateStreak();
-
-        requestAnimationFrame(() => {
-          setTimeout(loadQuestion, 500);
-        });
+        setTimeout(loadQuestion, 600);
       } else {
         btn.classList.add("wrong");
-        buttons.forEach(b => {
-          if (b.textContent === correctEN) {
-            b.classList.add("correct");
-          }
-        });
+        highlightCorrect(currentItem.en);
         streak = 0;
         updateStreak();
         nextBtn.classList.remove("hidden");
@@ -197,6 +115,93 @@ function loadQuestion() {
     };
 
     choicesEl.appendChild(btn);
+  });
+}
+
+/* =====================================================
+   EAR TRAINING MODE
+===================================================== */
+function loadEarTraining() {
+  choicesEl.innerHTML = "";
+
+  if (earPhase === 1) {
+    currentItem = EAR_TRAINING[Math.floor(Math.random() * EAR_TRAINING.length)];
+    promptEl.textContent = "Listen carefully...";
+    speak(currentItem.pt);
+
+    let options = shuffle(
+      EAR_TRAINING.filter(i => i.en !== currentItem.en)
+    ).slice(0, 3);
+
+    options.push(currentItem);
+    options = shuffle(options);
+
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.textContent = opt.en;
+
+      btn.onclick = () => {
+        if (opt.en === currentItem.en) {
+          btn.classList.add("correct");
+          earPhase = 2;
+          setTimeout(loadEarTraining, 700);
+        } else {
+          btn.classList.add("wrong");
+          highlightCorrect(currentItem.en);
+          streak = 0;
+          updateStreak();
+          nextBtn.classList.remove("hidden");
+        }
+      };
+
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  else if (earPhase === 2) {
+    promptEl.textContent = currentItem.pt;
+
+    let options = shuffle(
+      EAR_TRAINING.map(i => i.response)
+        .filter(r => r !== currentItem.response)
+    ).slice(0, 3);
+
+    options.push(currentItem.response);
+    options = shuffle(options);
+
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+
+      btn.onclick = () => {
+        if (opt === currentItem.response) {
+          btn.classList.add("correct");
+          streak++;
+          updateStreak();
+          earPhase = 1;
+          setTimeout(loadQuestion, 800);
+        } else {
+          btn.classList.add("wrong");
+          highlightCorrect(currentItem.response);
+          streak = 0;
+          updateStreak();
+          nextBtn.classList.remove("hidden");
+        }
+      };
+
+      choicesEl.appendChild(btn);
+    });
+  }
+}
+
+/* =====================================================
+   HIGHLIGHT CORRECT
+===================================================== */
+function highlightCorrect(correctText) {
+  [...choicesEl.children].forEach(btn => {
+    if (btn.textContent === correctText) {
+      btn.classList.add("correct");
+    }
   });
 }
 
@@ -229,6 +234,14 @@ document.getElementById("btnConjugation").onclick = () => {
   loadQuestion();
 };
 
+document.getElementById("btnEar").onclick = () => {
+  currentMode = "ear";
+  earPhase = 1;
+  resetPractice();
+  showScreen(practiceSection);
+  loadQuestion();
+};
+
 document.querySelectorAll("#vocabCategories button[data-category]").forEach(b => {
   b.onclick = () => {
     currentCategory = b.dataset.category;
@@ -243,36 +256,21 @@ document.getElementById("btnHome").onclick = () => showScreen(mainMenu);
 document.getElementById("btnBackFromVocab").onclick = () => showScreen(mainMenu);
 nextBtn.onclick = loadQuestion;
 
-/* ================= SPEAKER ================= */
 speakerBtn.onclick = () => {
-  if (!currentItem) return;
-
-  if (currentMode === "conjugation") {
-    speak(currentItem.infinitive);
-  } else if (currentMode === "verbs") {
-    speak(currentItem.infinitive);
+  if (currentMode === "ear") {
+    speak(currentItem.pt);
   } else {
     speak(currentItem.pt);
   }
 };
 
-/* ================= SETTINGS ================= */
 document.getElementById("audioSpeed").onchange = e => {
   audioRate = parseFloat(e.target.value);
 };
 
-const tenseToggle = document.getElementById("tenseToggle");
-if (tenseToggle) {
-  CONJUGATION_SETTINGS.tense = tenseToggle.value;
-
-  tenseToggle.addEventListener("change", e => {
-    CONJUGATION_SETTINGS.tense = e.target.value;
-  });
-}
-
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 
-settingsBtn.onclick = () => {
+settingsBtn.addEventListener("click", () => {
   settingsPanel.classList.toggle("hidden");
-};
+});
