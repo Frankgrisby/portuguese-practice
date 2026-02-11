@@ -1,16 +1,17 @@
 /* =====================================================
-   GLOBAL STATE
+   SAFE INITIALIZATION
 ===================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+
 let currentMode = null;
 let currentCategory = null;
 let currentItem = null;
 let streak = 0;
 let audioRate = 1;
-
-let earPhase = 1; // 1 = translate to English, 2 = choose Portuguese response
+let earPhase = 1;
 
 /* =====================================================
-   DOM
+   DOM (SAFE)
 ===================================================== */
 const mainMenu = document.getElementById("mainMenu");
 const vocabCategories = document.getElementById("vocabCategories");
@@ -30,7 +31,8 @@ function shuffle(arr) {
 }
 
 function updateStreak() {
-  streakDisplay.textContent = `🔥 Streak: ${streak}`;
+  if (streakDisplay)
+    streakDisplay.textContent = `🔥 Streak: ${streak}`;
 }
 
 /* =====================================================
@@ -48,39 +50,46 @@ function speak(text) {
 }
 
 /* =====================================================
-   NAVIGATION
+   SCREEN CONTROL
 ===================================================== */
 function showScreen(screen) {
-  [mainMenu, vocabCategories, practiceSection].forEach(s =>
-    s.classList.add("hidden")
-  );
-  screen.classList.remove("hidden");
+  [mainMenu, vocabCategories, practiceSection].forEach(s => {
+    if (s) s.classList.add("hidden");
+  });
+  if (screen) screen.classList.remove("hidden");
 }
 
 function resetPractice() {
   streak = 0;
   updateStreak();
-  nextBtn.classList.add("hidden");
+  if (nextBtn) nextBtn.classList.add("hidden");
 }
 
 /* =====================================================
-   MAIN QUESTION LOADER
+   MAIN LOADER
 ===================================================== */
 function loadQuestion() {
+
+  if (!choicesEl || !promptEl) return;
+
   choicesEl.innerHTML = "";
-  nextBtn.classList.add("hidden");
+  if (nextBtn) nextBtn.classList.add("hidden");
 
   if (currentMode === "ear") {
     loadEarTraining();
     return;
   }
 
-  /* ================= VOCAB / VERBS / PHRASES ================= */
-
   let pool;
-  if (currentMode === "vocabulary") pool = VOCABULARY[currentCategory];
-  if (currentMode === "verbs") pool = VERBS;
-  if (currentMode === "phrases") pool = PHRASES;
+
+  if (currentMode === "vocabulary")
+    pool = VOCABULARY?.[currentCategory];
+
+  if (currentMode === "verbs")
+    pool = VERBS;
+
+  if (currentMode === "phrases")
+    pool = PHRASES;
 
   if (!pool || pool.length === 0) {
     promptEl.textContent = "No data available.";
@@ -88,6 +97,7 @@ function loadQuestion() {
   }
 
   currentItem = pool[Math.floor(Math.random() * pool.length)];
+
   promptEl.textContent = currentItem.pt;
 
   let options = shuffle(
@@ -104,15 +114,16 @@ function loadQuestion() {
 
     btn.onclick = () => {
       if (opt.en === currentItem.en) {
+        btn.classList.add("correct");
         streak++;
         updateStreak();
-        loadQuestion();
+        setTimeout(loadQuestion, 500);
       } else {
-        streak = 0;
-        updateStreak();
         btn.classList.add("wrong");
         highlightCorrect(currentItem.en);
-        nextBtn.classList.remove("hidden");
+        streak = 0;
+        updateStreak();
+        if (nextBtn) nextBtn.classList.remove("hidden");
       }
     };
 
@@ -124,18 +135,20 @@ function loadQuestion() {
    EAR TRAINING
 ===================================================== */
 function loadEarTraining() {
-  choicesEl.innerHTML = "";
 
   if (!EAR_TRAINING || EAR_TRAINING.length === 0) {
     promptEl.textContent = "No ear training data.";
     return;
   }
 
+  choicesEl.innerHTML = "";
+
   if (earPhase === 1) {
+
     currentItem =
       EAR_TRAINING[Math.floor(Math.random() * EAR_TRAINING.length)];
 
-    promptEl.innerHTML = "🎧 Listen carefully...";
+    promptEl.textContent = "🎧 Listen carefully...";
     speak(currentItem.pt);
 
     let options = shuffle(
@@ -152,16 +165,17 @@ function loadEarTraining() {
 
       btn.onclick = () => {
         if (opt.en === currentItem.en) {
+          btn.classList.add("correct");
           streak++;
           updateStreak();
           earPhase = 2;
-          loadEarTraining();
+          setTimeout(loadEarTraining, 500);
         } else {
-          streak = 0;
-          updateStreak();
           btn.classList.add("wrong");
           highlightCorrect(currentItem.en);
-          nextBtn.classList.remove("hidden");
+          streak = 0;
+          updateStreak();
+          if (nextBtn) nextBtn.classList.remove("hidden");
         }
       };
 
@@ -169,19 +183,16 @@ function loadEarTraining() {
     });
   }
 
-  /* ================= PHASE 2 ================= */
+  else {
 
-  else if (earPhase === 2) {
-    promptEl.innerHTML = "💬 Choose the correct response";
+    promptEl.textContent = "💬 Choose the correct response";
 
-    // ONLY Portuguese response options
     let options = shuffle(
       EAR_TRAINING.map(i => i.response.pt)
     ).slice(0, 3);
 
-    if (!options.includes(currentItem.response.pt)) {
+    if (!options.includes(currentItem.response.pt))
       options[0] = currentItem.response.pt;
-    }
 
     shuffle(options);
 
@@ -201,13 +212,12 @@ function loadEarTraining() {
             earPhase = 1;
             loadEarTraining();
           }, 900);
-
         } else {
-          streak = 0;
-          updateStreak();
           btn.classList.add("wrong");
           highlightCorrect(currentItem.response.pt);
-          nextBtn.classList.remove("hidden");
+          streak = 0;
+          updateStreak();
+          if (nextBtn) nextBtn.classList.remove("hidden");
         }
       };
 
@@ -217,7 +227,7 @@ function loadEarTraining() {
 }
 
 /* =====================================================
-   HIGHLIGHT CORRECT
+   HIGHLIGHT
 ===================================================== */
 function highlightCorrect(correctText) {
   document.querySelectorAll(".answer-btn").forEach(btn => {
@@ -228,61 +238,68 @@ function highlightCorrect(correctText) {
 }
 
 /* =====================================================
-   EVENTS
+   BUTTON EVENTS (SAFE)
 ===================================================== */
-document.getElementById("btnVocabulary").onclick = () => {
+
+document.getElementById("btnVocabulary")?.addEventListener("click", () => {
   currentMode = "vocabulary";
   showScreen(vocabCategories);
-};
+});
 
-document.getElementById("btnVerbs").onclick = () => {
+document.getElementById("btnVerbs")?.addEventListener("click", () => {
   currentMode = "verbs";
   resetPractice();
   showScreen(practiceSection);
   loadQuestion();
-};
+});
 
-document.getElementById("btnPhrases").onclick = () => {
+document.getElementById("btnPhrases")?.addEventListener("click", () => {
   currentMode = "phrases";
   resetPractice();
   showScreen(practiceSection);
   loadQuestion();
-};
+});
 
-document.getElementById("btnEarTraining").onclick = () => {
+document.getElementById("btnEarTraining")?.addEventListener("click", () => {
   currentMode = "ear";
   earPhase = 1;
   resetPractice();
   showScreen(practiceSection);
   loadQuestion();
-};
-
-document.querySelectorAll("#vocabCategories button[data-category]").forEach(b => {
-  b.onclick = () => {
-    currentCategory = b.dataset.category;
-    currentMode = "vocabulary";
-    resetPractice();
-    showScreen(practiceSection);
-    loadQuestion();
-  };
 });
 
-document.getElementById("btnHome").onclick = () => showScreen(mainMenu);
-document.getElementById("btnBackFromVocab").onclick = () => showScreen(mainMenu);
-nextBtn.onclick = loadQuestion;
+document.querySelectorAll("#vocabCategories button[data-category]")
+  .forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentCategory = btn.dataset.category;
+      currentMode = "vocabulary";
+      resetPractice();
+      showScreen(practiceSection);
+      loadQuestion();
+    });
+  });
 
-speakerBtn.onclick = () => {
-  if (currentMode === "ear") {
-    speak(currentItem.pt);
-  } else {
-    speak(currentItem.pt);
-  }
-};
+document.getElementById("btnHome")
+  ?.addEventListener("click", () => showScreen(mainMenu));
 
-document.getElementById("audioSpeed").onchange = e => {
-  audioRate = parseFloat(e.target.value);
-};
+document.getElementById("btnBackFromVocab")
+  ?.addEventListener("click", () => showScreen(mainMenu));
 
-document.getElementById("settingsBtn").addEventListener("click", () => {
-  document.getElementById("settingsPanel").classList.toggle("hidden");
+nextBtn?.addEventListener("click", loadQuestion);
+
+speakerBtn?.addEventListener("click", () => {
+  if (currentItem?.pt) speak(currentItem.pt);
+});
+
+document.getElementById("audioSpeed")
+  ?.addEventListener("change", e => {
+    audioRate = parseFloat(e.target.value);
+  });
+
+document.getElementById("settingsBtn")
+  ?.addEventListener("click", () => {
+    document.getElementById("settingsPanel")
+      ?.classList.toggle("hidden");
+  });
+
 });
