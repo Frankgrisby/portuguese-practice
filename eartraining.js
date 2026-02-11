@@ -1,43 +1,66 @@
 const EAR_TRAINING = [
   {
-    pt: "Bom dia!",
-    en: "Good morning!",
-    response: "Bom dia! Como está?"
+    pt: "Bom dia",
+    en: "Good morning",
+    response: {
+      pt: "Bom dia!",
+      en: "Good morning!"
+    }
   },
   {
-    pt: "Tudo bem?",
+    pt: "Boa tarde",
+    en: "Good afternoon",
+    response: {
+      pt: "Boa tarde!",
+      en: "Good afternoon!"
+    }
+  },
+  {
+    pt: "Boa noite",
+    en: "Good evening / night",
+    response: {
+      pt: "Boa noite!",
+      en: "Good evening / night!"
+    }
+  },
+  {
+    pt: "Como você está?",
     en: "How are you?",
-    response: "Tudo bem, e você?"
+    response: {
+      pt: "Estou bem, obrigado.",
+      en: "I am well, thank you."
+    }
   },
   {
-    pt: "Onde fica o banheiro?",
-    en: "Where is the bathroom?",
-    response: "Fica ali à direita."
-  },
-  {
-    pt: "Quanto custa?",
-    en: "How much does it cost?",
-    response: "Custa dez euros."
+    pt: "Qual é o seu nome?",
+    en: "What is your name?",
+    response: {
+      pt: "Meu nome é João.",
+      en: "My name is João."
+    }
   },
   {
     pt: "Você fala inglês?",
     en: "Do you speak English?",
-    response: "Sim, falo um pouco."
+    response: {
+      pt: "Sim, eu falo inglês.",
+      en: "Yes, I speak English."
+    }
   },
   {
-    pt: "Que horas são?",
-    en: "What time is it?",
-    response: "São três horas."
+    pt: "Onde fica o banheiro?",
+    en: "Where is the bathroom?",
+    response: {
+      pt: "O banheiro fica ali.",
+      en: "The bathroom is over there."
+    }
   },
   {
-    pt: "Pode me ajudar?",
-    en: "Can you help me?",
-    response: "Claro, com prazer."
-  },
-  {
-    pt: "Estou perdido.",
-    en: "I am lost.",
-    response: "Posso te ajudar."
+    pt: "Quanto custa?",
+    en: "How much does it cost?",
+    response: {
+      pt: "Custa dez euros.",
+      en: "It costs ten euros."
+    }
   }
 ];
-            
